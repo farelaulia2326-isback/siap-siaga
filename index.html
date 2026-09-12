@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Siap Siaga">
+<meta name="theme-color" content="#1F5F63">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Siap Siaga</title>
+<style>
+  :root{
+    --bg:#F7F8F7;
+    --surface:#FFFFFF;
+    --ink:#1C2723;
+    --ink-soft:#5B6864;
+    --teal:#1F5F63;
+    --teal-deep:#153F42;
+    --line:#E1E6E4;
+    --urgent:#B3261E;
+    --urgent-deep:#8C1D17;
+    --ok:#2E7D5B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    padding-bottom:84px;
+  }
+  header{
+    background:var(--teal);
+    color:#fff;
+    padding:22px 20px 26px;
+    border-radius:0 0 20px 20px;
+  }
+  header h1{
+    margin:0 0 4px;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    font-size:14px;
+    color:#CFE3E0;
+  }
+  main{
+    max-width:520px;
+    margin:0 auto;
+    padding:16px 16px 8px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* ---- contacts ---- */
+  .contact-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 14px 14px 16px;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .contact-card.empty{
+    border-style:dashed;
+    color:var(--ink-soft);
+  }
+  .contact-info{flex:1;min-width:0;}
+  .contact-role{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 2px;
+  }
+  .contact-name{
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .contact-number{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .call-btn{
+    flex-shrink:0;
+    width:52px;height:52px;
+    border-radius:50%;
+    border:none;
+    background:var(--ok);
+    color:#fff;
+    font-size:22px;
+    display:flex;align-items:center;justify-content:center;
+    text-decoration:none;
+  }
+  .call-btn.urgent{background:var(--urgent);}
+  .call-btn:active{filter:brightness(0.9);}
+  .edit-btn{
+    flex-shrink:0;
+    width:40px;height:40px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    font-size:16px;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .section-label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:20px 4px 10px;
+  }
+
+  /* ---- checklist ---- */
+  .checklist-group{margin-bottom:22px;}
+  .check-item{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .check-item input[type=checkbox]{
+    width:22px;height:22px;
+    accent-color:var(--teal);
+    flex-shrink:0;
+  }
+  .check-item label{
+    font-size:15px;
+    flex:1;
+  }
+  .check-item.done label{
+    color:var(--ink-soft);
+    text-decoration:line-through;
+  }
+  .remove-item{
+    background:none;border:none;color:var(--ink-soft);
+    font-size:18px;padding:4px 6px;
+  }
+  .add-item-row{
+    display:flex;gap:8px;margin-top:4px;
+  }
+  .add-item-row input{
+    flex:1;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    font-size:15px;
+    background:#fff;
+  }
+  .add-item-row button{
+    padding:0 18px;
+    border-radius:12px;
+    border:none;
+    background:var(--teal);
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+  }
+
+  /* ---- tab bar ---- */
+  nav.tabbar{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    background:#fff;
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  }
+  nav.tabbar button{
+    flex:1;
+    border:none;
+    background:none;
+    padding:8px 4px;
+    font-size:13px;
+    color:var(--ink-soft);
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+  }
+  nav.tabbar button.active{color:var(--teal);font-weight:700;}
+  nav.tabbar .ico{font-size:20px;}
+
+  /* ---- edit modal ---- */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(20,30,28,0.45);
+    display:none;
+    align-items:flex-end;
+    z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .sheet{
+    background:#fff;
+    width:100%;
+    border-radius:20px 20px 0 0;
+    padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+  .sheet h3{margin:0 0 14px;font-size:17px;}
+  .sheet label{
+    display:block;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:10px 0 4px;
+  }
+  .sheet input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    font-size:16px;
+  }
+  .sheet-actions{
+    display:flex;gap:10px;margin-top:18px;
+  }
+  .sheet-actions button{
+    flex:1;
+    padding:13px;
+    border-radius:12px;
+    border:none;
+    font-size:15px;
+    font-weight:600;
+  }
+  .btn-save{background:var(--teal);color:#fff;}
+  .btn-cancel{background:#F1F3F2;color:var(--ink);}
+
+  .empty-note{
+    font-size:13px;
+    color:var(--ink-soft);
+    text-align:center;
+    padding:20px 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Siap Siaga</h1>
+  <p id="headerSub">Panggilan cepat &amp; checklist menuju persalinan</p>
+</header>
+
+<main>
+
+  <section id="panel-call" class="panel active">
+    <div class="section-label">Kontak darurat</div>
+    <div id="contactList"></div>
+    <p class="empty-note">Ketuk ikon pensil untuk mengisi nama dan nomor. Ketuk lingkaran hijau untuk langsung menelepon.</p>
+  </section>
+
+  <section id="panel-checklist" class="panel">
+    <div class="section-label">Checklist tas persalinan</div>
+    <div id="checklistList" class="checklist-group"></div>
+    <div class="add-item-row">
+      <input type="text" id="newItemInput" placeholder="Tambah item lain…">
+      <button onclick="addChecklistItem()">Tambah</button>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabbar">
+  <button id="tab-call" onclick="showPanel('call')">
+    <span class="ico">📞</span>Panggilan
+  </button>
+  <button id="tab-checklist" onclick="showPanel('checklist')">
+    <span class="ico">🧳</span>Checklist
+  </button>
+</nav>
+
+<div class="overlay" id="editOverlay">
+  <div class="sheet">
+    <h3>Edit kontak</h3>
+    <label>Peran</label>
+    <input type="text" id="editRole" placeholder="mis. Bidan / RS Bunda">
+    <label>Nama</label>
+    <input type="text" id="editName" placeholder="Nama kontak">
+    <label>Nomor telepon</label>
+    <input type="tel" id="editNumber" placeholder="08xxxxxxxxxx">
+    <div class="sheet-actions">
+      <button class="btn-cancel" onclick="closeEdit()">Batal</button>
+      <button class="btn-save" onclick="saveEdit()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'siapsiaga_contacts_v1';
+const CHECK_KEY = 'siapsiaga_checklist_v1';
+
+const defaultContacts = [
+  {role:'Ambulans', name:'', number:'119', urgent:true, locked:true},
+  {role:'Rumah Sakit / Bidan', name:'', number:''},
+  {role:'Suami / Istri', name:'', number:''},
+  {role:'Keluarga terdekat', name:'', number:''},
+  {role:'Keluarga terdekat 2', name:'', number:''},
+];
+
+const defaultChecklist = [
+  'KTP & Kartu Keluarga',
+  'Kartu BPJS / asuransi',
+  'Buku KIA / catatan kehamilan',
+  'Baju ganti ibu',
+  'Pembalut nifas',
+  'Baju bayi & bedong',
+  'Popok bayi newborn',
+  'Selimut bayi',
+  'Kacamata / kebutuhan pribadi',
+  'Charger HP',
+  'Uang tunai secukupnya',
+];
+
+let contacts = load(STORAGE_KEY, defaultContacts);
+let checklist = load(CHECK_KEY, defaultChecklist.map(text => ({text, done:false})));
+let editingIndex = null;
+
+function load(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return JSON.parse(JSON.stringify(fallback));
+    return JSON.parse(raw);
+  }catch(e){
+    return JSON.parse(JSON.stringify(fallback));
+  }
+}
+function persist(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+    localStorage.setItem(CHECK_KEY, JSON.stringify(checklist));
+  }catch(e){}
+}
+
+function showPanel(name){
+  document.getElementById('panel-call').classList.toggle('active', name==='call');
+  document.getElementById('panel-checklist').classList.toggle('active', name==='checklist');
+  document.getElementById('tab-call').classList.toggle('active', name==='call');
+  document.getElementById('tab-checklist').classList.toggle('active', name==='checklist');
+}
+
+function renderContacts(){
+  const list = document.getElementById('contactList');
+  list.innerHTML = '';
+  contacts.forEach((c, i) => {
+    const hasNumber = !!c.number;
+    const card = document.createElement('div');
+    card.className = 'contact-card' + (hasNumber ? '' : ' empty');
+
+    const info = document.createElement('div');
+    info.className = 'contact-info';
+    info.innerHTML = `
+      <p class="contact-role">${escapeHtml(c.role)}</p>
+      <p class="contact-name">${escapeHtml(c.name) || (hasNumber ? '' : 'Belum diisi')}</p>
+      <p class="contact-number">${escapeHtml(c.number) || ''}</p>
+    `;
+    card.appendChild(info);
+
+    if(hasNumber){
+      const call = document.createElement('a');
+      call.className = 'call-btn' + (c.urgent ? ' urgent' : '');
+      call.href = 'tel:' + c.number.replace(/[^0-9+]/g,'');
+      call.innerHTML = '📞';
+      card.appendChild(call);
+    }
+
+    if(!c.locked || true){
+      const edit = document.createElement('button');
+      edit.className = 'edit-btn';
+      edit.innerHTML = '✎';
+      edit.onclick = () => openEdit(i);
+      card.appendChild(edit);
+    }
+
+    list.appendChild(card);
+  });
+}
+
+function openEdit(i){
+  editingIndex = i;
+  document.getElementById('editRole').value = contacts[i].role || '';
+  document.getElementById('editName').value = contacts[i].name || '';
+  document.getElementById('editNumber').value = contacts[i].number || '';
+  document.getElementById('editOverlay').classList.add('show');
+}
+function closeEdit(){
+  document.getElementById('editOverlay').classList.remove('show');
+  editingIndex = null;
+}
+function saveEdit(){
+  if(editingIndex === null) return;
+  contacts[editingIndex].role = document.getElementById('editRole').value.trim() || contacts[editingIndex].role;
+  contacts[editingIndex].name = document.getElementById('editName').value.trim();
+  contacts[editingIndex].number = document.getElementById('editNumber').value.trim();
+  persist();
+  renderContacts();
+  closeEdit();
+}
+
+function renderChecklist(){
+  const list = document.getElementById('checklistList');
+  list.innerHTML = '';
+  checklist.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'check-item' + (item.done ? ' done' : '');
+    row.innerHTML = `
+      <input type="checkbox" id="chk${i}" ${item.done ? 'checked' : ''}>
+      <label for="chk${i}">${escapeHtml(item.text)}</label>
+      <button class="remove-item" aria-label="Hapus">✕</button>
+    `;
+    row.querySelector('input').addEventListener('change', e => {
+      checklist[i].done = e.target.checked;
+      persist();
+      row.classList.toggle('done', e.target.checked);
+    });
+    row.querySelector('.remove-item').addEventListener('click', () => {
+      checklist.splice(i,1);
+      persist();
+      renderChecklist();
+    });
+    list.appendChild(row);
+  });
+}
+
+function addChecklistItem(){
+  const input = document.getElementById('newItemInput');
+  const val = input.value.trim();
+  if(!val) return;
+  checklist.push({text:val, done:false});
+  input.value = '';
+  persist();
+  renderChecklist();
+}
+document.getElementById('newItemInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') addChecklistItem();
+});
+
+function escapeHtml(str){
+  return (str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+renderContacts();
+renderChecklist();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
